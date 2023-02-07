@@ -19,8 +19,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 
 #[ApiResource(
-    denormalizationContext: ['groups' => 'write'],
     normalizationContext: ['groups' => 'read', 'enable_max_depth' => true],
+    denormalizationContext: ['groups' => 'write'],
 )]
 #[ApiFilter(SearchFilter::class, properties: [
     'id'               => 'exact',
@@ -43,6 +43,7 @@ class Comment
     #[ORM\Id]
     #[ORM\Column(type: 'integer')]
     #[ORM\GeneratedValue(strategy: "IDENTITY")]
+    #[Groups(['read','write'])]
     private int $id;
 
     #[ORM\Column(type: 'uuid_binary')]
@@ -83,7 +84,7 @@ class Comment
 
     #[ORM\ManyToOne(targetEntity: Comment::class, inversedBy: 'subComments')]
     #[ORM\JoinColumn(name: 'reply_to_comment_id')]
-    #[Groups(['read', 'write'])]
+    #[Groups(['write'])]
     private ?Comment $replyToComment;
 
 
@@ -93,7 +94,7 @@ class Comment
         cascade: ['persist'],
         orphanRemoval: true
     )]
-    #[Groups(['read'])]
+    #[Groups(['read', 'write'])]
     private ?Collection $subComments;
 
 
