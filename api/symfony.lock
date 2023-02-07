@@ -195,6 +195,12 @@
     "psr/log": {
         "version": "3.0.0"
     },
+    "ramsey/uuid-doctrine": {
+        "version": "2.0",
+        "recipe": {
+            "version": "1.3"
+        }
+    },
     "symfony/asset": {
         "version": "v6.0.1"
     },
