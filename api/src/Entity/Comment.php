@@ -15,9 +15,13 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use EasyRdf\Container;
 use Ramsey\Uuid\UuidInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 
-#[ApiResource()]
+#[ApiResource(
+    denormalizationContext: ['groups' => 'write'],
+    normalizationContext: ['groups' => 'read', 'enable_max_depth' => true],
+)]
 #[ApiFilter(SearchFilter::class, properties: [
     'id'               => 'exact',
     'topicId'          => 'exact',
@@ -42,44 +46,55 @@ class Comment
     private int $id;
 
     #[ORM\Column(type: 'uuid_binary')]
+    #[Groups(['read'])]
     private UuidInterface $uuid;
 
     #[ORM\Column(type: 'integer')]
+    #[Groups(['read', 'write'])]
     private ?int $topicId;
 
     #[ORM\Column(type: 'integer')]
+    #[Groups(['read', 'write'])]
     private ?int $replyToCommentId;
 
     #[ORM\Column(type: 'integer')]
+    #[Groups(['read', 'write'])]
     private ?int $topCommentId;
 
     #[ORM\Column(type: 'integer')]
+    #[Groups(['read', 'write'])]
     private ?int $userId;
 
     #[ORM\Column(type: 'string')]
+    #[Groups(['read', 'write'])]
     private string $title;
 
     #[ORM\Column(type: 'string')]
+    #[Groups(['read', 'write'])]
     private string $content;
 
     #[ORM\Column(type: 'datetime')]
+    #[Groups(['read'])]
     private DateTime $createTime;
 
     #[ORM\Column(type: 'datetime')]
+    #[Groups(['read'])]
     private ?DateTime $updateTime;
 
     #[ORM\ManyToOne(targetEntity: Comment::class, inversedBy: 'subComments')]
     #[ORM\JoinColumn(name: 'reply_to_comment_id')]
+    #[Groups(['read', 'write'])]
     private ?Comment $replyToComment;
 
 
     #[ORM\OneToMany(
-        mappedBy: 'comment',
+        mappedBy: 'replyToComment',
         targetEntity: Comment::class,
         cascade: ['persist'],
         orphanRemoval: true
     )]
-    private ?ArrayCollection $subComments;
+    #[Groups(['read'])]
+    private ?Collection $subComments;
 
 
     public function __construct()
@@ -224,7 +239,6 @@ class Comment
 
         return $this;
     }
-
 
 
     /**
