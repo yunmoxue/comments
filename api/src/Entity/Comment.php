@@ -13,9 +13,9 @@ use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use EasyRdf\Container;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints\Length;
 
 
 #[ApiResource(
@@ -27,12 +27,13 @@ use Symfony\Component\Serializer\Annotation\Groups;
     'topicId'          => 'exact',
     'replyToCommentId' => 'exact',
     'topCommentId'     => 'exact',
+    'userId'           => 'exact',
 ])]
 #[ApiFilter(DateFilter::class, properties: [
     'createTime',
     'updateTime',
 ])]
-#[Orm\HasLifecycleCallbacks()]
+#[Orm\HasLifecycleCallbacks]
 #[Orm\Entity]
 class Comment
 {
@@ -43,7 +44,7 @@ class Comment
     #[ORM\Id]
     #[ORM\Column(type: 'integer')]
     #[ORM\GeneratedValue(strategy: "IDENTITY")]
-    #[Groups(['read','write'])]
+    #[Groups(['read', 'write'])]
     private int $id;
 
     #[ORM\Column(type: 'uuid_binary')]
@@ -55,7 +56,7 @@ class Comment
     private ?int $topicId;
 
     #[ORM\Column(type: 'integer')]
-    #[Groups(['read', 'write'])]
+    #[Groups(['read'])]
     private ?int $replyToCommentId;
 
     #[ORM\Column(type: 'integer')]
@@ -66,8 +67,9 @@ class Comment
     #[Groups(['read', 'write'])]
     private ?int $userId;
 
-    #[ORM\Column(type: 'string')]
+    #[ORM\Column]
     #[Groups(['read', 'write'])]
+    #[Length(min: 1, max: 100)]
     private string $title;
 
     #[ORM\Column(type: 'string')]
@@ -86,7 +88,6 @@ class Comment
     #[ORM\JoinColumn(name: 'reply_to_comment_id')]
     #[Groups(['write'])]
     private ?Comment $replyToComment;
-
 
     #[ORM\OneToMany(
         mappedBy: 'replyToComment',
